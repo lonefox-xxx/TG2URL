@@ -15,7 +15,7 @@ async function HandleMessages(msg, meta, bot) {
         { file_id: msg.document.file_id },
       ],
     };
-    const historicalData = await getData(query);
+    const historicalData = await getData(query, "fileDataset");
     if (historicalData.length == 0) {
       console.log("file not found in Database");
       await ProcessDocument(msg, chatID, queryid, bot);

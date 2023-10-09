@@ -9,7 +9,13 @@ async function ProcessDocument(msg, chatID, queryid, bot) {
   bot.deleteMessage(chatID, queryid);
 
   const { message_id } = await bot.sendMessage(chatID, "Downloading File...");
+  // const down = await bot.downloadFile(msg.document.file_id, "../downloads");
+  // return console.log(down);
   const file = await bot.getFile(msg.document.file_id);
+  file.file_name = msg.document.file_name;
+
+  const userData = await bot.getChat(chatID);
+
   if (!file.file_path) {
     return bot.editMessageText(`Invalid File Type`, {
       chat_id: chatID,
@@ -33,6 +39,7 @@ async function ProcessDocument(msg, chatID, queryid, bot) {
       file.file_size,
       25
     );
+    const uploadedAt = new Date().getTime();
     const filedata = {
       file_name: file.file_name,
       file_unique_id: file.file_unique_id,
@@ -40,14 +47,24 @@ async function ProcessDocument(msg, chatID, queryid, bot) {
       file_size: file.file_size,
       urls,
       updaterID: chatID,
+      uploadedAt,
     };
 
     await insertData(filedata);
 
-    bot.editMessageText(generateDownloadMessage(file, urls[0], urls[1]), {
-      chat_id: chatID,
-      message_id,
-    });
+    bot.editMessageText(
+      generateDownloadMessage(
+        file,
+        urls[0].shortenedUrl,
+        urls[1].shortenedUrl,
+        userData,
+        uploadedAt
+      ),
+      {
+        chat_id: chatID,
+        message_id,
+      }
+    );
   } catch (err) {
     console.error(err);
   }

@@ -29,6 +29,7 @@ bot.onText(/\/help/, (msg, match) => HelpCommand(msg, match, bot));
 // Handle Messages
 bot.on("message", async (msg, meta) => HandleMessages(msg, meta, bot));
 
+
 app.listen(port, async () => {
   const me = await bot.getMe();
   console.log(`${me.username} is Listening for messages`);

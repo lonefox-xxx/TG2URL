@@ -5,21 +5,27 @@ const client = new MongoClient(uri);
 const dbNAME = process.env.DBNAME;
 const database = client.db(dbNAME);
 
-async function insertData(data) {
-  const collection = database.collection(process.env.DB_COLLECTION);
+async function insertData(data, collectionName) {
+  const collection =
+    database.collection(collectionName) ||
+    database.collection(process.env.DB_COLLECTION);
   const res = await collection.insertOne(data);
   return res;
 }
 
-async function getData(id) {
-  const collection = database.collection(process.env.DB_COLLECTION);
+async function getData(id, collectionName) {
+  const collection =
+    database.collection(collectionName) ||
+    database.collection(process.env.DB_COLLECTION);
   const query = id || {};
   const res = await collection.find(query).toArray();
   return res;
 }
 
-async function updateData(id, data) {
-  const collection = database.collection(process.env.DB_COLLECTION);
+async function updateData(id, collectionName) {
+  const collection =
+    database.collection(collectionName) ||
+    database.collection(process.env.DB_COLLECTION);
   const res = await collection.updateOne(id, { $set: data });
   return res;
 }
