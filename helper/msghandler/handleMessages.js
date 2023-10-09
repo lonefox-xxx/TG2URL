@@ -17,10 +17,8 @@ async function HandleMessages(msg, meta, bot) {
     };
     const historicalData = await getData(query, "fileDataset");
     if (historicalData.length == 0) {
-      console.log("file not found in Database");
       await ProcessDocument(msg, chatID, queryid, bot);
     } else {
-      console.log("file found in Database");
       await ProcessHistoricalDocument(historicalData, chatID, queryid, bot);
     }
   } else {

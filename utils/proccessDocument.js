@@ -9,10 +9,9 @@ async function ProcessDocument(msg, chatID, queryid, bot) {
   bot.deleteMessage(chatID, queryid);
 
   const { message_id } = await bot.sendMessage(chatID, "Downloading File...");
-  // const down = await bot.downloadFile(msg.document.file_id, "../downloads");
-  // return console.log(down);
+
   const file = await bot.getFile(msg.document.file_id);
-  file.file_name = msg.document.file_name;
+  file.file_name = msg.document.file_name.replace(/[^\w\s]/g, " ").trim();
 
   const userData = await bot.getChat(chatID);
 
@@ -31,7 +30,7 @@ async function ProcessDocument(msg, chatID, queryid, bot) {
     const { stdout, stderr } = await exec(
       `ia upload ${identifier}  ${file.file_path} --metadata="mediatype:movie" --metadata="blah:arg"`
     );
-    console.log(stdout, stderr);
+    bot.editMessageText(`Getting Links...`, { chat_id: chatID, message_id });
 
     await sleep(1000 * 10);
     const { urls, status, msg, data } = await GetReference(
@@ -50,7 +49,7 @@ async function ProcessDocument(msg, chatID, queryid, bot) {
       uploadedAt,
     };
 
-    await insertData(filedata);
+    await insertData(filedata, "fileDataset");
 
     bot.editMessageText(
       generateDownloadMessage(

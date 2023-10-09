@@ -1,14 +1,24 @@
+const generateDownloadMessage = require("./genarateDocumentMessage");
+
 async function ProcessHistoricalDocument(historicalData, chatID, queryid, bot) {
-  bot.sendMessage(
-    chatID,
-    `File Downloaded\n\nFileID : ${
-      historicalData[0].file_unique_id
-    }\n\nFile Size : ${(historicalData[0].file_size / (1024 * 1024)).toFixed(
-      2
-    )} mb\n\nLink1 : ${historicalData[0].urls[0]}\n\nLink2 : ${
-      historicalData[0].urls[1]
-    }`
-  );
+  try {
+    bot.deleteMessage(chatID, queryid);
+    const maxFilestoSend = process.env.MAXFILESTOSEND || 2;
+    for (let i = 0; i < maxFilestoSend && i < historicalData.length; i++) {
+      const element = historicalData[i];
+      const userData = await bot.getChat(chatID);
+      const msg = generateDownloadMessage(
+        element,
+        element.urls[0].shortenedUrl,
+        element.urls[1].shortenedUrl,
+        userData,
+        element.uploadedAt
+      );
+      await bot.sendMessage(chatID, msg, { disable_web_page_preview: true });
+    }
+  } catch (error) {
+    console.error("Error sending messages:", error);
+  }
 }
 
 module.exports = ProcessHistoricalDocument;

@@ -10,14 +10,15 @@ function GetReference(id, size, retryLimit) {
   return new Promise((resolve, reject) => {
     const interval = setInterval(async () => {
       const { data } = await sdk.item({ id });
+      if (!data) return console.log(data);
       const item = data.files.filter(
         (item) =>
           item.length && item.width && item.height && item.source == "original"
       );
 
       if (item.length != 0) {
-        const url1 = generateUrl(data, "d1", item);
-        const url2 = generateUrl(data, "d2", item);
+        const url1 = await generateUrl(data, "d1", item);
+        const url2 = await generateUrl(data, "d2", item);
         const urls = [url1, url2];
         resolve({ status: false, msg: "success", urls, data });
         clearInterval(interval);
