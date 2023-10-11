@@ -2,6 +2,7 @@ const ProcessHistoricalDocument = require("../../utils/ProcessHistoricalDocument
 const handleNonDocumentMessage = require("../../utils/handleNonDocumentMessage");
 const ProcessDocument = require("../../utils/proccessDocument");
 const { getData } = require("../database/databaseManagement");
+const HandleKeybord = require("../handleKeybord/KeybordHandler");
 
 async function HandleMessages(msg, meta, bot) {
   const chatID = msg.chat.id;
@@ -22,7 +23,21 @@ async function HandleMessages(msg, meta, bot) {
       await ProcessHistoricalDocument(historicalData, chatID, queryid, bot);
     }
   } else {
-    await handleNonDocumentMessage(msg, chatID, bot);
+    // console.log(msg);
+    if (!msg.text) return;
+    const commands = (await bot.getMyCommands()).map((x) => x.command);
+    const text = msg.text.replace("/", "") || "text";
+
+    if (!commands.includes(text)) {
+      if (msg.chat.type != "private" && !msg.document && !msg.via_bot)
+        await handleNonDocumentMessage(msg, chatID, bot);
+      else {
+        const handeledKeyboard = await HandleKeybord(msg, bot);
+        !handeledKeyboard &&
+          !msg.via_bot &&
+          bot.sendMessage(chatID, "Sorry , Plz send me a document");
+      }
+    }
   }
 }
 
